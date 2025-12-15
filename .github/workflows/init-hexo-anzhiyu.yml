@@ -1,0 +1,63 @@
+name: Init Hexo with Anzhiyu Theme
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  init-hexo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Hexo CLI
+        run: npm install -g hexo-cli
+
+      - name: Init Hexo
+        run: |
+          hexo init .
+          npm install
+
+      - name: Install Anzhiyu theme
+        run: |
+          git clone https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
+          cp themes/anzhiyu/_config.yml _config.anzhiyu.yml
+
+      - name: Enable Anzhiyu theme
+        run: |
+          sed -i 's/^theme: .*/theme: anzhiyu/' _config.yml
+
+      - name: Install Anzhiyu required plugins
+        run: |
+          npm install hexo-renderer-pug hexo-renderer-stylus --save
+          npm install hexo-generator-search --save
+          npm install hexo-wordcount --save
+          npm install hexo-generator-feed --save
+          npm install hexo-generator-sitemap --save
+
+      - name: Create first post
+        run: |
+          npx hexo new post "Hello Anzhiyu"
+
+      - name: Generate site
+        run: |
+          npx hexo clean
+          npx hexo generate
+
+      - name: Commit Hexo project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          git commit -m "feat: init hexo with anzhiyu theme via github actions"
+          git push
