@@ -22,18 +22,22 @@ jobs:
       - name: Install Hexo CLI
         run: npm install -g hexo-cli
 
-      - name: Init Hexo
+      - name: Init Hexo in temp dir
         run: |
+          mkdir /tmp/hexo
+          cd /tmp/hexo
           hexo init .
           npm install
+
+      - name: Copy Hexo files to repo
+        run: |
+          shopt -s dotglob
+          cp -r /tmp/hexo/* .
 
       - name: Install Anzhiyu theme
         run: |
           git clone https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
           cp themes/anzhiyu/_config.yml _config.anzhiyu.yml
-
-      - name: Enable Anzhiyu theme
-        run: |
           sed -i 's/^theme: .*/theme: anzhiyu/' _config.yml
 
       - name: Install Anzhiyu required plugins
