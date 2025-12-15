@@ -40,7 +40,7 @@ jobs:
       - name: Install Hexo CLI
         run: npm install -g hexo-cli
 
-      # 4. 初始化Hexo（仅首次初始化需要）
+      # 4. 初始化Hexo
       - name: Hexo init
         if: steps.check_init.outputs.initialized == 'false'
         run: |
@@ -51,14 +51,14 @@ jobs:
           cp -r temp/. .
           rm -rf temp
 
-      # 5. 克隆Anzhiyu主题（仅首次初始化需要）
+      # 5. 克隆Anzhiyu主题
       - name: Clone Anzhiyu theme
         if: steps.check_init.outputs.initialized == 'false'
         run: |
           git clone -b main https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
           rm -rf themes/anzhiyu/.git
 
-      # 6. 配置Hexo使用Anzhiyu主题（仅首次初始化需要）
+      # 6. 配置Hexo使用Anzhiyu主题
       - name: Configure Hexo to use Anzhiyu theme
         if: steps.check_init.outputs.initialized == 'false'
         run: |
@@ -86,16 +86,14 @@ jobs:
           hexo clean
           hexo generate
 
-      # 8. 配置Git用户信息（仅首次初始化需要）
+      # 8. 配置Git用户信息
       - name: Configure Git
-        #if: steps.check_init.outputs.initialized == 'false'
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      # 9. 提交并推送源码到当前仓库（仅首次初始化需要）
+      # 9. 提交并推送源码到当前仓库
       - name: Commit and push changes
-        #if: steps.check_init.outputs.initialized == 'false'
         run: |
           git add .
           git commit -m "Initialize Hexo with Anzhiyu theme" || echo "No changes to commit"
