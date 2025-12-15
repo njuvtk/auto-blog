@@ -77,7 +77,8 @@ jobs:
             hexo-component-inferno \
             hexo-generator-searchdb \
             hexo-generator-feed \
-            hexo-generator-sitemap
+            hexo-generator-sitemap \
+            hexo-abbrlink
 
       # 7. 构建Hexo静态文件
       - name: Build Hexo Blog
