@@ -64,6 +64,7 @@ jobs:
         run: |
           sed -i 's/theme: landscape/theme: anzhiyu/g' _config.yml
           cp themes/anzhiyu/_config.yml _config.anzhiyu.yml
+          sed -i '/^[[:space:]]*permalink: :year\/:month\/:day\/:title\//,/^[[:space:]]*permalink_defaults:/c\# permalink: :year/:month/:day/:title/\n# permalink_defaults:\npermalink: posts/:abbrlink/\nabbrlink:\n  alg: crc32 # support crc16(default) and crc32\n  rep: dec   # support dec(default) and hex' _config.yml
 
       # ====================== 关键修复：始终安装依赖（解决依赖问题） ======================
       - name: Install dependencies (Hexo + Anzhiyu theme)
