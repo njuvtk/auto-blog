@@ -35,7 +35,9 @@ jobs:
 
       # 5. 克隆Anzhiyu主题到themes/anzhiyu目录
       - name: Clone Anzhiyu theme
-        run: git clone -b main https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
+        run: |
+          git clone -b main https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
+          rm -rf themes/anzhiyu/.git || echo "No files"
 
       # 6. 配置Hexo使用Anzhiyu主题
       - name: Configure Hexo to use Anzhiyu theme
