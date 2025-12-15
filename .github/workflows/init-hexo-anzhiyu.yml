@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js (Hexo stable)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -22,7 +22,7 @@ jobs:
       - name: Install Hexo CLI
         run: npm install -g hexo-cli
 
-      - name: Init Hexo in temp dir
+      - name: Init Hexo in dir
         run: |
           mkdir hexo
           cd hexo
@@ -31,7 +31,7 @@ jobs:
 
       - name: Install Anzhiyu theme
         run: |
-          git clone https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
+          git clone -b main https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
           cp themes/anzhiyu/_config.yml _config.anzhiyu.yml
           sed -i 's/^theme: .*/theme: anzhiyu/' _config.yml
 
