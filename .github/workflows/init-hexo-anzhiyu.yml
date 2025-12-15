@@ -88,14 +88,14 @@ jobs:
 
       # 8. 配置Git用户信息（仅首次初始化需要）
       - name: Configure Git
-        if: steps.check_init.outputs.initialized == 'false'
+        #if: steps.check_init.outputs.initialized == 'false'
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
       # 9. 提交并推送源码到当前仓库（仅首次初始化需要）
       - name: Commit and push changes
-        if: steps.check_init.outputs.initialized == 'false'
+        #if: steps.check_init.outputs.initialized == 'false'
         run: |
           git add .
           git commit -m "Initialize Hexo with Anzhiyu theme" || echo "No changes to commit"
