@@ -48,8 +48,8 @@ jobs:
 
       - name: Generate site
         run: |
-          npx hexo clean
-          npx hexo generate
+          hexo clean
+          hexo generate
 
       - name: Commit Hexo project
         run: |
