@@ -1,10 +1,9 @@
 name: Initialize Hexo with Anzhiyu Theme
 
-# 触发条件：手动触发（推荐，避免每次push都执行）
+# 触发条件：手动触发
 on:
   workflow_dispatch:
 
-# 工作流配置
 jobs:
   init-hexo-anzhiyu:
     runs-on: ubuntu-latest
@@ -13,12 +12,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. 设置Node.js环境（Hexo推荐Node.js 16+/18+）
+      # 2. 设置Node.js环境（移除cache配置，避免查找锁文件）
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
-          cache: 'npm' # 缓存npm依赖，加速后续运行
+          node-version: 18.x # 保留Node版本，移除cache: 'npm'
 
       # 3. 全局安装Hexo CLI
       - name: Install Hexo CLI
@@ -34,6 +32,8 @@ jobs:
           mv !(temp_repo|.git) temp_repo/ || echo "No files to move"
           # 初始化Hexo到当前目录
           hexo init .
+          # 手动执行npm install，确保生成package-lock.json（部分环境hexo init可能不自动执行）
+          npm install
           # 把临时目录的文件移回当前目录（保留Workflow等文件）
           mv temp_repo/* . || echo "No files to restore"
           # 删除临时目录
@@ -41,14 +41,14 @@ jobs:
 
       # 5. 克隆Anzhiyu主题到themes/anzhiyu目录
       - name: Clone Anzhiyu theme
-        run: git clone https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
+        run: git clone -b main https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
 
       # 6. 配置Hexo使用Anzhiyu主题
       - name: Configure Hexo to use Anzhiyu theme
         run: |
           # 修改根目录_config.yml的theme字段（从landscape改为anzhiyu）
           sed -i 's/theme: landscape/theme: anzhiyu/g' _config.yml
-          # 复制主题配置文件到根目录（方便自定义，不修改主题源码）
+          # 复制主题配置文件到根目录（方便自定义）
           cp themes/anzhiyu/_config.yml _config.anzhiyu.yml
 
       # 7. 安装Anzhiyu主题所需的依赖
@@ -62,7 +62,7 @@ jobs:
             hexo-generator-feed \
             hexo-generator-sitemap
 
-      # 8. 配置Git用户信息（用于提交代码）
+      # 8. 配置Git用户信息
       - name: Configure Git
         run: |
           git config --global user.name "${{ github.actor }}"
@@ -72,7 +72,7 @@ jobs:
       - name: Commit and push changes
         run: |
           git add .
-          # 若没有修改则跳过提交（避免报错）
+          # 若没有修改则跳过提交
           git commit -m "Initialize Hexo with Anzhiyu theme via GitHub Action" || echo "No changes to commit"
           # 推送到当前分支
           git push origin ${{ github.ref }}
