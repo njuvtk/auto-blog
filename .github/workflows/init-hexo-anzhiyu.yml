@@ -34,8 +34,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
-          cache: 'npm'  # 缓存npm依赖，加速安装（关键优化）
+          node-version: 20.x
 
       # 3. 全局安装Hexo CLI
       - name: Install Hexo CLI
@@ -47,7 +46,7 @@ jobs:
         run: |
           mkdir -p temp
           cd temp
-          hexo init .
+          hexo init . --no-install
           cd ..
           cp -r temp/. .
           rm -rf temp
