@@ -28,7 +28,7 @@ jobs:
       # 4. 处理目录（解决hexo init要求空目录的问题）
       - name: Hexo init
         run: |
-          find . -mindepth 1 -maxdepth 1 ! -name ".git" ! -name ".github" -exec rm -rf {} +
+          # find . -mindepth 1 -maxdepth 1 ! -name ".git" ! -name ".github" -exec rm -rf {} +
           mkdir -p temp
           cd temp
           hexo init .
@@ -41,7 +41,7 @@ jobs:
       - name: Clone Anzhiyu theme
         run: |
           git clone -b main https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
-          rm -rf themes/anzhiyu/.git || echo "No files"
+          rm -rf themes/anzhiyu/.git
 
       # 6. 配置Hexo使用Anzhiyu主题
       - name: Configure Hexo to use Anzhiyu theme
@@ -73,6 +73,6 @@ jobs:
         run: |
           git add .
           # 若没有修改则跳过提交
-          git commit -m "Initialize Hexo with Anzhiyu theme via GitHub Action" || echo "No changes to commit"
+          git commit -m "Initialize Hexo with Anzhiyu theme" || echo "No changes to commit"
           # 推送到当前分支
           git push origin ${{ github.ref }}
