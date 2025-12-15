@@ -105,9 +105,9 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           # 【必改】目标仓库：用户名/仓库名（如 yourname/yourname.github.io）
-          repo: njuvtk/auto-blog
+          external_repository: njuvtk/auto-blog
           # 【必改】部署分支（main 或 gh-pages）
-          branch: gh-pages
+          publish_branch: gh-pages
           # 静态文件目录
           publish_dir: ./public
           # GitHub Token
