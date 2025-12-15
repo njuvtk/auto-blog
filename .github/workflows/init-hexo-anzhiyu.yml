@@ -3,6 +3,9 @@ name: Initialize Hexo with Anzhiyu Theme
 # 触发条件：手动触发
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -15,45 +18,60 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ====================== 核心：检查是否已初始化 ======================
+      - name: Check if Hexo with Anzhiyu is initialized
+        id: check_init
+        run: |
+          if [ -f "_config.anzhiyu.yml" ]; then
+            echo "✅ 检测到 _config.anzhiyu.yml 文件，跳过初始化流程"
+            echo "initialized=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ 未检测到 _config.anzhiyu.yml 文件，执行初始化流程"
+            echo "initialized=false" >> $GITHUB_OUTPUT
+          fi
+
       # 2. 设置Node.js环境
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18.x
+          cache: 'npm'  # 缓存npm依赖，加速安装（关键优化）
 
       # 3. 全局安装Hexo CLI
       - name: Install Hexo CLI
         run: npm install -g hexo-cli
 
-      # 4. 处理目录（解决hexo init要求空目录的问题）
+      # 4. 初始化Hexo（仅首次初始化需要）
       - name: Hexo init
+        if: steps.check_init.outputs.initialized == 'false'
         run: |
-          # find . -mindepth 1 -maxdepth 1 ! -name ".git" ! -name ".github" -exec rm -rf {} +
           mkdir -p temp
           cd temp
           hexo init .
           cd ..
           cp -r temp/. .
           rm -rf temp
-          npm install
 
-      # 5. 克隆Anzhiyu主题到themes/anzhiyu目录
+      # 5. 克隆Anzhiyu主题（仅首次初始化需要）
       - name: Clone Anzhiyu theme
+        if: steps.check_init.outputs.initialized == 'false'
         run: |
           git clone -b main https://github.com/anzhiyu-c/hexo-theme-anzhiyu.git themes/anzhiyu
           rm -rf themes/anzhiyu/.git
 
-      # 6. 配置Hexo使用Anzhiyu主题
+      # 6. 配置Hexo使用Anzhiyu主题（仅首次初始化需要）
       - name: Configure Hexo to use Anzhiyu theme
+        if: steps.check_init.outputs.initialized == 'false'
         run: |
-          # 修改根目录_config.yml的theme字段（从landscape改为anzhiyu）
           sed -i 's/theme: landscape/theme: anzhiyu/g' _config.yml
-          # 复制主题配置文件到根目录（方便自定义）
           cp themes/anzhiyu/_config.yml _config.anzhiyu.yml
 
-      # 7. 安装Anzhiyu主题所需的依赖
-      - name: Install theme dependencies
+      # ====================== 关键修复：始终安装依赖（解决依赖问题） ======================
+      - name: Install dependencies (Hexo + Anzhiyu theme)
         run: |
+          # 安装Hexo核心依赖（读取package.json）
+          npm install
+          # 安装Anzhiyu主题必需的依赖（确保即使已初始化也能补全依赖）
           npm install --save \
             hexo-renderer-pug \
             hexo-renderer-stylus \
@@ -62,17 +80,41 @@ jobs:
             hexo-generator-feed \
             hexo-generator-sitemap
 
-      # 8. 配置Git用户信息
+      # 7. 构建Hexo静态文件
+      - name: Build Hexo Blog
+        run: |
+          hexo clean
+          hexo generate
+
+      # 8. 配置Git用户信息（仅首次初始化需要）
       - name: Configure Git
+        if: steps.check_init.outputs.initialized == 'false'
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      # 9. 提交并推送源码到当前仓库
+      # 9. 提交并推送源码到当前仓库（仅首次初始化需要）
       - name: Commit and push changes
+        if: steps.check_init.outputs.initialized == 'false'
         run: |
           git add .
-          # 若没有修改则跳过提交
           git commit -m "Initialize Hexo with Anzhiyu theme" || echo "No changes to commit"
-          # 推送到当前分支
           git push origin ${{ github.ref }}
+
+      # 10. 推送静态文件到指定仓库
+      - name: Deploy static files to target repository
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          # 【必改】目标仓库：用户名/仓库名（如 yourname/yourname.github.io）
+          repo: njuvtk/auto-blog
+          # 【必改】部署分支（main 或 gh-pages）
+          branch: gh-pages
+          # 静态文件目录
+          publish_dir: ./public
+          # GitHub Token
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 提交信息
+          commit_message: 'Deploy static files: ${{ github.run_id }}'
+          # 部署者信息
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
