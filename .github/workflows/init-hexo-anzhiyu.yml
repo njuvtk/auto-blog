@@ -46,10 +46,6 @@ jobs:
             hexo-generator-feed \
             hexo-generator-sitemap --save
 
-      - name: Create first post
-        run: |
-          npx hexo new post "Hello Anzhiyu"
-
       - name: Generate site
         run: |
           npx hexo clean
