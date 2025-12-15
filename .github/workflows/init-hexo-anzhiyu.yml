@@ -17,22 +17,17 @@ jobs:
       - name: Setup Node.js (Hexo stable)
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 18
 
       - name: Install Hexo CLI
         run: npm install -g hexo-cli
 
       - name: Init Hexo in temp dir
         run: |
-          mkdir /tmp/hexo
-          cd /tmp/hexo
+          mkdir hexo
+          cd hexo
           hexo init .
           npm install
-
-      - name: Copy Hexo files to repo
-        run: |
-          shopt -s dotglob
-          cp -r /tmp/hexo/* .
 
       - name: Install Anzhiyu theme
         run: |
@@ -56,6 +51,13 @@ jobs:
         run: |
           npx hexo clean
           npx hexo generate
+
+
+      - name: Copy Hexo files to repo
+        run: |
+          shopt -s dotglob
+          cd .
+          cp -r hexo/* .
 
       - name: Commit Hexo project
         run: |
