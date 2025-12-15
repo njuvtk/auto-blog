@@ -12,32 +12,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. 设置Node.js环境（移除cache配置，避免查找锁文件）
+      # 2. 设置Node.js环境
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x # 保留Node版本，移除cache: 'npm'
+          node-version: 18.x
 
       # 3. 全局安装Hexo CLI
       - name: Install Hexo CLI
         run: npm install -g hexo-cli
 
       # 4. 处理目录（解决hexo init要求空目录的问题）
-      - name: Prepare empty directory for Hexo init
+      - name: Hexo init
         run: |
-          # 创建临时目录存放现有文件（如.github/workflows）
-          mkdir -p temp_repo
-          # 移动当前目录所有文件（除.git和temp_repo）到临时目录
-          shopt -s extglob
-          mv !(temp_repo|.git) temp_repo/ || echo "No files to move"
-          # 初始化Hexo到当前目录
+          mkdir -p temp
+          cd temp
           hexo init .
-          # 手动执行npm install，确保生成package-lock.json（部分环境hexo init可能不自动执行）
+          cd ..
+          mv temp/* . || echo "No files to restore"
+          rm -rf temp
           npm install
-          # 把临时目录的文件移回当前目录（保留Workflow等文件）
-          mv temp_repo/* . || echo "No files to restore"
-          # 删除临时目录
-          rm -rf temp_repo
 
       # 5. 克隆Anzhiyu主题到themes/anzhiyu目录
       - name: Clone Anzhiyu theme
