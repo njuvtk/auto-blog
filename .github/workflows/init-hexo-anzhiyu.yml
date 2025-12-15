@@ -4,6 +4,9 @@ name: Initialize Hexo with Anzhiyu Theme
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   init-hexo-anzhiyu:
     runs-on: ubuntu-latest
