@@ -14,10 +14,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js (Hexo stable)
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 16
 
       - name: Install Hexo CLI
         run: npm install -g hexo-cli
@@ -40,13 +40,13 @@ jobs:
           cp themes/anzhiyu/_config.yml _config.anzhiyu.yml
           sed -i 's/^theme: .*/theme: anzhiyu/' _config.yml
 
-      - name: Install Anzhiyu required plugins
+      - name: Install Anzhiyu plugins
         run: |
-          npm install hexo-renderer-pug hexo-renderer-stylus --save
-          npm install hexo-generator-search --save
-          npm install hexo-wordcount --save
-          npm install hexo-generator-feed --save
-          npm install hexo-generator-sitemap --save
+          npm install hexo-renderer-pug hexo-renderer-stylus \
+            hexo-generator-search \
+            hexo-wordcount \
+            hexo-generator-feed \
+            hexo-generator-sitemap --save
 
       - name: Create first post
         run: |
